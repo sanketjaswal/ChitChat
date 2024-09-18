@@ -19,7 +19,9 @@ jobs:
         node-version: '20' # Specify the Node.js version
 
     - name: Install dependencies
-      run: npm install
+      run: cd client
+        npm install
 
     - name: Run build
-      run: npm run build # Modify this command as per your build step
+      run: cd client
+        npm run build 
