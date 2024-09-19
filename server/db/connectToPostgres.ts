@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { Client } from "pg";
 import Colors from "colors";
+import { createUserTable } from "../models/user_model";
 
 dotenv.config();
 
@@ -34,19 +35,14 @@ const client = new Client(dbConfig);
 
 const ConnectToPostgres = async () => {
   try {
-    console.log(process.env.POSTGRES_USER);
-    client
-      .connect()
-      .then(() =>
-        console.log(
-          Colors.bold.bgGreen(
-            ` Connected to PostgreSQL in port ${dbConfig.port} `
-          )
-        )
-      );
+    await client.connect();
+    console.log(
+      Colors.bold.bgGreen(`Connected to PostgreSQL on port ${dbConfig.port}`)
+    );
+    // await createUserTable();
   } catch (error) {
-    console.log(Colors.bgRed("Error connecting to PostGres DB"));
+    console.error(Colors.bgRed("Error connecting to PostgreSQL DB"), error);
   }
 };
 
-export default ConnectToPostgres;
+export { ConnectToPostgres, client };
