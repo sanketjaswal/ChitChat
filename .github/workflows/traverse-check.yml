@@ -18,21 +18,44 @@ jobs:
         with:
           node-version: '20' # Specify the Node.js version
 
-      - name: Install dependencies
+      - name: Install client dependencies
         run: |
           cd client
           npm install
 
-      - name: Run build
+      - name: Run client build
         run: |
           cd client
           npm run build
 
-  # Job 2: Test
+  # Job 2: Lint
   lint:
     runs-on: windows-latest
     steps:
-      - name: Run lint
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install server dependencies
+        run: |
+          cd server
+          npm install
+
+      - name: Install client dependencies
         run: |
           cd client
-          npm eslint .
+          npm install
+
+      - name: Run ESLint on client
+        run: |
+          cd client
+          npx eslint .
+
+      - name: Run ESLint on server
+        run: |
+          cd server
+          npx eslint .
