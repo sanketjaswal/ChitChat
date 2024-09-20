@@ -1,0 +1,38 @@
+name: Build and Test
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # Job 1: Build
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Specify the Node.js version
+
+      - name: Install dependencies
+        run: |
+          cd client
+          npm install
+
+      - name: Run build
+        run: |
+          cd client
+          npm run build
+
+  # Job 2: Test
+  lint:
+    runs-on: windows-latest
+    steps:
+      - name: Run lint
+        run: |
+          cd client
+          npm eslint .
