@@ -1,34 +1,36 @@
 import dotenv from "dotenv";
 import { Client } from "pg";
 import Colors from "colors";
-import { createUserTable } from "../models/user_model";
+// import { createUserTable } from "../models/user_model";
 
 dotenv.config();
 
 interface DBConfig {
   user: string | undefined;
-  host: string;
+  host: string | undefined;
   database: string | undefined;
   password: string | undefined;
-  port: number;
+  port: number | undefined;
 }
 
 const user = process.env.POSTGRES_USER;
 const database = process.env.POSTGRES_DB;
 const password = process.env.POSTGRES_PASSWORD;
+const host = process.env.POSTGRES_HOST;
+const port = Number(process.env.POSTGRES_PORT);
 
-if (!user || !database || !password) {
-  console.error(
-    Colors.bgRed("Missing env variables for PostgreSQL configuration.")
-  );
-}
+// if (!user || !database || !password || !host || !port) {
+//   console.error(
+//     Colors.bgRed("Missing env variables for PostgreSQL configuration.")
+//   );
+// }
 
 const dbConfig: DBConfig = {
   user: user,
-  host: "localhost",
+  host: host,
   database: database,
   password: password,
-  port: 5432,
+  port: port,
 };
 
 const client = new Client(dbConfig);

@@ -24,7 +24,7 @@ const io = new Server(server, {
 //   return userSocketMap[receiverId];
 // };
 
-const userSocketMap = {};
+// const userSocketMap = {};
 
 // io.on("connection", (socket) => {
 //   console.log("a user connected", socket.id);

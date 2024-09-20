@@ -17,22 +17,19 @@ export const createUserTable = async () => {
   await client.query(query);
 };
 
-interface User {
-  name: string;
-  username: string;
-  password: string;
-  gender: string;
-  email: string;
-  profilePic: string;
-}
+// interface User {
+//   name: string;
+//   username: string;
+//   password: string;
+//   gender: string;
+//   email: string;
+//   profilePic: string;
+// }
 
-export const createUser = async (user: User) => {
-  const { name, username, password, gender, email, profilePic } = user;
+export const createUser = async () => {
   const query =
     "INSERT INTO users (name, username, password, gender, email, profilePic) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *";
-  const values = [name, username, password, gender, email, profilePic];
-  const res = await client.query(query, values);
-  return res.rows[0];
+  return query;
 };
 
 export const getUsers = async () => {
