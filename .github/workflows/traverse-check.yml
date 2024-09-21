@@ -53,9 +53,9 @@ jobs:
       - name: Run ESLint on client
         run: |
           cd client
-          npx run lint
+          npm run lint
 
       - name: Run ESLint on server
         run: |
           cd server
-          npx run lint
+          npm run lint
