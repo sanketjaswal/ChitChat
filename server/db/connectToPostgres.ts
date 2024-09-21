@@ -35,7 +35,7 @@ const dbConfig: DBConfig = {
 
 const client = new Client(dbConfig);
 
-const ConnectToPostgres = async () => {
+const connectToPostgres = async () => {
   try {
     await client.connect();
     console.log(Colors.bold.bgGreen(`Connected to PostgreSQL on port ${dbConfig.port}`));
@@ -45,4 +45,4 @@ const ConnectToPostgres = async () => {
   }
 };
 
-export { ConnectToPostgres, client };
+export { connectToPostgres, client };

@@ -4,7 +4,7 @@ import { userRouter } from '../routes/auth_routes';
 import colors from 'colors';
 
 import { app, server } from '../socket/socket';
-import { ConnectToPostgres } from '../db/connectToPostgres';
+import { connectToPostgres } from '../db/connectToPostgres';
 
 dotenv.config();
 
@@ -15,6 +15,6 @@ app.use(express.json());
 app.use('/api/users', userRouter);
 
 server.listen(PORT, () => {
-  ConnectToPostgres();
+  connectToPostgres();
   console.log(colors.bold.bgBlue(` server running in port ${PORT} `));
 });
