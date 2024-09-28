@@ -1,30 +1,40 @@
-import { Request, Response } from "express";
-import { createUser, getUsers } from "../models/user_model";
-import { client } from "../db/connectToPostgres";
-import bcrypt from "bcrypt";
+import { Request, Response } from 'express';
+import { User, createUser, findOneUser, getUsers } from '../models/user_model';
+import { client } from '../db/connectToPostgres';
+import generateJWTandStore from '../utils/generateJWTtoken';
+// import { LocalStorage } from 'node-localstorage';
 
-export const registerUser = async (req: Request, res: Response) => {
+import bcrypt from 'bcrypt';
+
+// const localstorage = new L ocalStorage('./');
+
+export const registerControl = async (req: Request<object, object, User>, res: Response) => {
   try {
-    const { name, username, password, confirmPassword, gender, email } =
-      req.body;
+    const { name, username, password, confirmPassword, gender, email } = req.body;
+
     const query = await createUser();
 
+    if (!name || !username || !email) {
+      return res.status(400).json({ error: 'Name, username, and email are required' });
+    }
+
     if (password !== confirmPassword) {
-      return res.status(400).json({ error: "Passwords dont match" });
+      return res.status(400).json({ error: 'Passwords dont match' });
     }
 
     // console.log(query);
 
     //Hash Password
     const salt = await bcrypt.genSalt(10);
-    const hashedpassword = await bcrypt.hash(req.body.password, salt);
+    const hashedpassword = await bcrypt.hash(password, salt);
 
+    //picture assignation
     const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
     const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
 
-    let profilePic;
+    let profilePic: string;
 
-    if (gender === "male") {
+    if (gender === 'male') {
       profilePic = boyProfilePic;
     } else {
       profilePic = girlProfilePic;
@@ -32,12 +42,56 @@ export const registerUser = async (req: Request, res: Response) => {
 
     const values = [name, username, hashedpassword, gender, email, profilePic];
 
+    //api call
     const result = await client.query(query, values);
-    const user = result.rows[0];
+    console.log(result);
+    const addeduser = result.rows[0];
 
-    res.status(201).json(user);
+    return res.status(201).json(addeduser);
   } catch (err) {
-    res.status(500).json({ error: err });
+    return res.status(500).json({ error: err });
+  }
+};
+
+export const loginControl = async (req: Request<object, object, User>, res: Response) => {
+  const { username, password } = req.body;
+
+  //api call
+  const query = await findOneUser(username);
+  const result = await client.query(query);
+  const foundUser = result?.rows[0];
+
+  // console.log('foundUser', foundUser);
+
+  const isPasswordCorrect = await bcrypt.compare(password, foundUser?.password || '');
+
+  //password check
+  if (!foundUser || !isPasswordCorrect) {
+    return console.error('Invalid username or password');
+  }
+
+  //generate JWT
+  const token = generateJWTandStore(foundUser);
+  // console.log(token);
+
+  //Token conversion to data
+  // const base64 = token.split('.')[1];
+  // const tokenPayload = JSON.parse(Buffer.from(base64, 'base64').toString());
+
+  // console.log('base64', base64);
+
+  // console.log('tokenPayload', tokenPayload);
+
+  return res.status(201).json(token);
+};
+
+export const logoutControl = (req: Request<object, object, User>, res: Response) => {
+  try {
+    // localstorage.removeItem('chat-user');
+    res.status(200).json({ message: 'Logged Out Successfully' });
+  } catch (error) {
+    console.log('Error in Logout Controller', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 

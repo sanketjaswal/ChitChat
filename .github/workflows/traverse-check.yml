@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Specify the Node.js version
+          node-version: "20"
 
       - name: Install client dependencies
         run: |
@@ -38,7 +38,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install server dependencies
         run: |
@@ -53,9 +53,9 @@ jobs:
       - name: Run ESLint on client
         run: |
           cd client
-          npx eslint .
+          npm run lint
 
       - name: Run ESLint on server
         run: |
           cd server
-          npx eslint .
+          npm run lint

@@ -1,15 +1,19 @@
-// /* eslint-disable import/default */
-import React from 'react';
-// import ReactDOM from 'react-dom/client';
+import * as React from 'react';
 import './index.css';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { BrowserRouter } from 'react-router-dom';
+import { AuthContextProvider } from './context/Auth_context';
 
 const root = createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <React.StrictMode>
-    <App />
+    <AuthContextProvider>
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
+    </AuthContextProvider>
   </React.StrictMode>,
 );
 

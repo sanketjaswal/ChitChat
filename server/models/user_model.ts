@@ -1,4 +1,4 @@
-import { client } from "../db/connectToPostgres";
+import { client } from '../db/connectToPostgres';
 
 export const createUserTable = async () => {
   const query = `
@@ -17,23 +17,29 @@ export const createUserTable = async () => {
   await client.query(query);
 };
 
-// interface User {
-//   name: string;
-//   username: string;
-//   password: string;
-//   gender: string;
-//   email: string;
-//   profilePic: string;
-// }
+export interface User {
+  name: string;
+  username: string;
+  password: string;
+  gender: string;
+  email: string;
+  profilePic: string;
+  confirmPassword: string;
+}
 
 export const createUser = async () => {
   const query =
-    "INSERT INTO users (name, username, password, gender, email, profilePic) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *";
+    'INSERT INTO users (name, username, password, gender, email, profilePic) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *';
+  return query;
+};
+
+export const findOneUser = async (username: string) => {
+  const query = `SELECT * FROM users WHERE username = '${username}' LIMIT 1;`;
   return query;
 };
 
 export const getUsers = async () => {
-  const query = "SELECT * FROM users";
+  const query = 'SELECT * FROM users';
   const res = await client.query(query);
   return res.rows;
 };
