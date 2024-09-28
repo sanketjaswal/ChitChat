@@ -2,7 +2,6 @@
   "env": {
     "browser": true,
     "es2021": true
-    // "jest": true
   },
   "extends": [
     "plugin:react/recommended",
@@ -11,6 +10,7 @@
     "plugin:prettier/recommended",
     "plugin:import/recommended"
   ],
+
   "overrides": [],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
@@ -23,7 +23,7 @@
   "plugins": ["react", "@typescript-eslint", "react-hooks"],
   "rules": {
     "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": ["error"],
+    "@typescript-eslint/no-use-before-define": ["off"],
     "react/jsx-filename-extension": ["warn", { "extensions": [".tsx"] }],
     "import/extensions": [
       "error",
@@ -46,7 +46,17 @@
     "react/prop-types": "off",
     "prettier/prettier": ["error", { "endOfLine": "auto" }],
     "import/no-unresolved": ["error"],
-    "@typescript-eslint/naming-convention": "error"
+    "@typescript-eslint/naming-convention": [
+      "error",
+      {
+        "selector": "variableLike",
+        "format": ["camelCase", "PascalCase"]
+      },
+      {
+        "selector": "typeLike",
+        "format": ["PascalCase"]
+      }
+    ]
   },
   "settings": {
     "import/resolver": {
@@ -57,6 +67,7 @@
         "extensions": [".ts", ".tsx"]
       }
     },
+    "import/default": "off",
     "import/parsers": {
       "@typescript-eslint/parser": [".ts", ".tsx"]
     },

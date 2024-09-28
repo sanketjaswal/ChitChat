@@ -2,16 +2,21 @@ import { Request, Response } from 'express';
 import { User, createUser, findOneUser, getUsers } from '../models/user_model';
 import { client } from '../db/connectToPostgres';
 import generateJWTandStore from '../utils/generateJWTtoken';
-import { LocalStorage } from 'node-localstorage';
+// import { LocalStorage } from 'node-localstorage';
 
 import bcrypt from 'bcrypt';
 
-const localstorage = new LocalStorage('./');
+// const localstorage = new L ocalStorage('./');
 
 export const registerControl = async (req: Request<object, object, User>, res: Response) => {
   try {
     const { name, username, password, confirmPassword, gender, email } = req.body;
+
     const query = await createUser();
+
+    if (!name || !username || !email) {
+      return res.status(400).json({ error: 'Name, username, and email are required' });
+    }
 
     if (password !== confirmPassword) {
       return res.status(400).json({ error: 'Passwords dont match' });
@@ -56,33 +61,33 @@ export const loginControl = async (req: Request<object, object, User>, res: Resp
   const result = await client.query(query);
   const foundUser = result?.rows[0];
 
-  console.log(foundUser);
+  // console.log('foundUser', foundUser);
 
   const isPasswordCorrect = await bcrypt.compare(password, foundUser?.password || '');
 
   //password check
   if (!foundUser || !isPasswordCorrect) {
-    return res.status(400).json({ error: 'Invalid username or password' });
+    return console.error('Invalid username or password');
   }
 
   //generate JWT
-  // const token =
-  generateJWTandStore(foundUser?.id);
+  const token = generateJWTandStore(foundUser);
   // console.log(token);
 
   //Token conversion to data
   // const base64 = token.split('.')[1];
   // const tokenPayload = JSON.parse(Buffer.from(base64, 'base64').toString());
 
-  // console.log(tokenPayload);
+  // console.log('base64', base64);
 
-  return res.status(201).json(foundUser);
+  // console.log('tokenPayload', tokenPayload);
+
+  return res.status(201).json(token);
 };
 
 export const logoutControl = (req: Request<object, object, User>, res: Response) => {
   try {
-    //localstorage delete token
-    localstorage.removeItem('chatUser');
+    // localstorage.removeItem('chat-user');
     res.status(200).json({ message: 'Logged Out Successfully' });
   } catch (error) {
     console.log('Error in Logout Controller', error);
