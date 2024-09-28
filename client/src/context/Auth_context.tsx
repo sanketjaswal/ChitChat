@@ -37,7 +37,21 @@ interface AuthContextProviderProps {
 export const AuthContextProvider: FC<AuthContextProviderProps> = ({
   children,
 }) => {
-  let tokenPayload: any = null;
+  interface TokenUser {
+    id: string;
+    name: string;
+    username: string;
+    email: string;
+    gender: string;
+  }
+
+  interface TokenPayload {
+    user: TokenUser;
+    iat: number;
+    exp: number;
+  }
+
+  let tokenPayload: TokenPayload | null = null;
 
   const token = JSON.parse(localStorage.getItem('chat-user') || 'null');
 
@@ -45,6 +59,7 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({
     try {
       const base64 = token?.split('.')[1];
       tokenPayload = JSON.parse(atob(base64));
+      console.log('tokenPayload', tokenPayload);
     } catch (error) {
       console.error('Error decoding token', error);
     }

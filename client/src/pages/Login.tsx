@@ -1,7 +1,7 @@
 import * as React from 'react';
-import styled from 'styled-components';
+import { styled } from 'styled-components';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuthContext } from '../context/Auth_context';
 
 const HomeContainer = styled.div`
@@ -127,8 +127,6 @@ const Login: React.FC = () => {
   });
 
   const { setAuthUser } = useAuthContext();
-
-  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();

@@ -1,5 +1,5 @@
 // src/components/Sidebar.tsx
-import React from 'react';
+import * as React from 'react';
 import { styled } from 'styled-components';
 
 const ConversationContainer = styled.div`
@@ -52,10 +52,6 @@ const ConversationText = styled.p`
   flex: 1;
 `;
 
-const EmojiSpan = styled.span`
-  font-size: 1.25rem;
-`;
-
 export const Conversation: React.FC = () => {
   return (
     <ConversationContainer
@@ -74,7 +70,6 @@ export const Conversation: React.FC = () => {
       </Avatar>
       <ConversationHeader>
         <ConversationName>{/* {conversation.fullname} */}Name</ConversationName>
-        {/* <EmojiSpan>{emoji}emoji</EmojiSpan> */}
         <ConversationText>helo</ConversationText>
       </ConversationHeader>
     </ConversationContainer>

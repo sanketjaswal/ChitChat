@@ -1,6 +1,6 @@
 // src/components/Header.tsx
-import React from 'react';
-import styled from 'styled-components';
+import * as React from 'react';
+import { styled } from 'styled-components';
 
 const HeaderWrapper = styled.header`
   background-color: #6200ea;
