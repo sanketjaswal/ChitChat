@@ -1,67 +1,52 @@
 import * as React from 'react';
-import { useState, FormEvent } from 'react';
+// import { useState, FormEvent } from 'react';
 import { styled } from 'styled-components';
 
 // Styled Components
-const Form = styled.form`
-  padding: 1rem;
-  margin: 1rem 0;
-`;
-
-const InputContainer = styled.div`
-  width: 100%;
-  position: relative;
-`;
-
 const Input = styled.input`
-  border: 1px solid #4b5563;
-  font-size: 0.875rem;
-  border-radius: 0.5rem;
-  width: 100%;
-  padding: 0.625rem;
-  background-color: #374151;
-  color: white;
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  margin-right: 8px;
+`;
 
-  &:focus {
-    outline: none;
-    border-color: #2563eb;
+const SendButton = styled.button`
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: #3b82f6;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  &:hover {
+    background-color: #336ecd;
   }
 `;
 
-const SubmitButton = styled.button`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  padding-right: 0.75rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-`;
+interface MessageInputProps {
+  handleSendMessage: () => void;
+  messageText: string;
+  setMessageText: (message: string) => void;
+}
 
-const MessageInput: React.FC = () => {
-  const [message, setMessage] = useState<string>('');
-
-  const handleSubmit = async (e: FormEvent): Promise<void> => {
-    e.preventDefault();
-    if (!message) return;
-    setMessage('');
-  };
-
+const MessageInput: React.FC<MessageInputProps> = ({
+  handleSendMessage,
+  messageText,
+  setMessageText,
+}) => {
   return (
-    <Form onSubmit={handleSubmit}>
-      <InputContainer>
-        <Input
-          type="text"
-          placeholder="Send a message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-        />
-        <SubmitButton>Send</SubmitButton>
-      </InputContainer>
-    </Form>
+    <>
+      <Input
+        type="text"
+        placeholder="Send a message"
+        value={messageText}
+        onChange={(e) => setMessageText(e.target.value)}
+      />
+      <SendButton onClick={handleSendMessage}>Send</SendButton>
+    </>
   );
 };
 

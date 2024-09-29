@@ -1,6 +1,7 @@
 // src/components/Sidebar.tsx
 import * as React from 'react';
 import { styled } from 'styled-components';
+import { useAuthContext } from '../context/Auth_context';
 
 const NavbarWrapper = styled.aside`
   width: 100px;
@@ -15,8 +16,8 @@ const NavbarWrapper = styled.aside`
 const Room = styled.div`
   display: flex;
   align-items: center;
-  justify-content: center;
   flex-direction: column;
+  width: 70%;
   margin-block: 40px 0;
   flex: 1;
   gap: 10px;
@@ -48,6 +49,14 @@ const Nav = styled.div`
 `;
 
 export const Navbar: React.FC = () => {
+  const { setAuthUser } = useAuthContext();
+
+  const handleLogout = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    localStorage.removeItem('chat-user');
+    setAuthUser(null);
+  };
+
   return (
     <NavbarWrapper>
       <img
@@ -78,7 +87,15 @@ export const Navbar: React.FC = () => {
         <Nav>Random</Nav>
       </Room>
       <Room>
-        <Nav>Logout</Nav>
+        <Nav onClick={handleLogout}>
+          <img
+            width="30"
+            height="30"
+            src="https://img.icons8.com/ios-filled/50/FFFFFF/logout-rounded-up.png"
+            alt="logout-rounded-up"
+          />
+          Logout
+        </Nav>
       </Room>
     </NavbarWrapper>
   );
