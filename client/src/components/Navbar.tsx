@@ -3,52 +3,15 @@ import * as React from 'react';
 import { styled } from 'styled-components';
 import { useAuthContext } from '../context/Auth_context';
 
-const NavbarWrapper = styled.aside`
-  width: 100px;
-  background-color: #131313;
-  color: white;
-  padding: 1rem 0;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-`;
+interface NavbarProps {
+  connected: boolean | undefined;
+}
 
-const Room = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  width: 70%;
-  margin-block: 40px 0;
-  flex: 1;
-  gap: 10px;
-`;
+// interface TokenItem {
+//   image: string | null;
+// }
 
-const Nav = styled.div`
-  width: 80%;
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  gap: 5px;
-  border-radius: 15px;
-  transition: 0.5s;
-
-  &:hover {
-    background-color: #3e3e3e;
-    transform: scale(1.1);
-    transition: 0.1s;
-  }
-
-  &:active {
-    background-color: #3e3e3e;
-    transform: scale(1);
-    transition: 0.1s;
-  }
-`;
-
-export const Navbar: React.FC = () => {
+export const Navbar: React.FC<NavbarProps> = ({ connected }) => {
   const { setAuthUser } = useAuthContext();
 
   const handleLogout = async (e: React.FormEvent): Promise<void> => {
@@ -56,6 +19,20 @@ export const Navbar: React.FC = () => {
     localStorage.removeItem('chat-user');
     setAuthUser(null);
   };
+
+  //Extract Image from token
+  const [foundImage, setFoundImage] = React.useState<string | null>();
+
+  React.useEffect(() => {
+    const token: string | null = localStorage.getItem('chat-user');
+
+    const base64 = token?.split('.')[1];
+    if (base64) {
+      const tokenPayload = JSON.parse(atob(base64).toString());
+      // console.log(tokenPayload.user.profilepic);
+      setFoundImage(tokenPayload.user.profilepic);
+    }
+  }, []);
 
   return (
     <NavbarWrapper>
@@ -96,7 +73,78 @@ export const Navbar: React.FC = () => {
           />
           Logout
         </Nav>
+        <Nav>
+          <img
+            width="40"
+            height="40"
+            src={
+              foundImage
+                ? foundImage
+                : 'https://img.icons8.com/ios/50/FFFFFF/user-male-circle--v1.png'
+            }
+            alt="profile-pic"
+          />
+          <Dot connected={connected}></Dot>
+          Profile
+        </Nav>
       </Room>
     </NavbarWrapper>
   );
 };
+
+const Dot = styled.div<NavbarProps>`
+  width: 8px;
+  height: 8px;
+  right: 15px;
+  position: absolute;
+  border-radius: 50%;
+  transition: 1s;
+  transform: ${({ connected }) => (connected ? 'scale(1.4)' : 'scale(1)')};
+  background-color: ${({ connected }) => (connected ? 'green' : 'red')};
+`;
+
+const NavbarWrapper = styled.aside`
+  width: 100px;
+  background-color: #131313;
+  color: white;
+  padding: 1rem 0;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+`;
+
+const Room = styled.div`
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  width: 70%;
+  margin-block: 40px 0;
+  flex: 1;
+  gap: 10px;
+`;
+
+const Nav = styled.div`
+  width: 80%;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+  gap: 5px;
+  border-radius: 15px;
+  transition: 0.5s;
+
+  &:hover {
+    background-color: #3e3e3e;
+    transform: scale(1.1);
+    transition: 0.1s;
+  }
+
+  &:active {
+    background-color: #3e3e3e;
+    transform: scale(1);
+    transition: 0.1s;
+  }
+`;

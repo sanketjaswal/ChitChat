@@ -21,21 +21,15 @@ export interface Conversation {
 }
 
 // Function to create a new conversation
-export const createConversation = async () => {
-  //   const { name, conversationType } = conversation;
-
-  const query = `
-        INSERT INTO conversations (name, conversation_type)
-        VALUES ($1, $2)
-        RETURNING id, name, conversation_type, created_at
+export const createConversation = () =>
+  `INSERT INTO conversations (name, conversation_type)
+    VALUES ($1, $2)
+    RETURNING id, name, conversation_type, created_at;
     `;
-
-  return query;
-};
 
 // Function to get all conversations
 export const getConversations = async () => {
-  const query = 'SELECT * FROM conversations ORDER BY created_at DESC';
+  const query = 'SELECT * FROM conversations ORDER BY created_at DESC;';
 
   try {
     const result = await client.query(query);
@@ -46,39 +40,19 @@ export const getConversations = async () => {
   }
 };
 
-// Function to get a conversation by ID
-export const getConversationById = async (id: number) => {
-  const query = 'SELECT * FROM conversations WHERE id = $1';
+// Function to get a conversation by 2 users Id's
+export const getConversationByUserIds = () => {
+  const query =
+    'SELECT p1.conversationid FROM partipants AS p1 JOIN partipants AS p2 ON p1.conversationid = p2.conversationid WHERE p1.userid = $1 AND p2.userid = $2';
 
-  try {
-    const result = await client.query(query, [id]);
-    return result.rows[0];
-  } catch (error) {
-    console.error('Error fetching conversation:', error);
-    throw error;
-  }
-};
-
-// Function to update a conversation
-export const updateConversation = async (id: number, conversation: Partial<Conversation>) => {
-  const { name, conversationType } = conversation;
-
-  const query = `
-        UPDATE conversations
-        SET name = COALESCE($1, name), conversationType = COALESCE($2, conversationType)
-        WHERE id = $3
-        RETURNING id, name, conversationType, created_at
-    `;
-
-  const values = [name, conversationType, id];
-
-  try {
-    const result = await client.query(query, values);
-    return result.rows[0];
-  } catch (error) {
-    console.error('Error updating conversation:', error);
-    throw error;
-  }
+  return query;
+  // try {
+  //   const result = await client.query(query, [id]);
+  //   return result.rows[0];
+  // } catch (error) {
+  //   console.error('Error fetching conversation:', error);
+  //   throw error;
+  // }
 };
 
 // Function to delete a conversation

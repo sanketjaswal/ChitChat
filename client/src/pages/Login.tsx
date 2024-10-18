@@ -1,8 +1,97 @@
 import * as React from 'react';
-import { styled } from 'styled-components';
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuthContext } from '../context/Auth_context';
+import { Link, useNavigate } from 'react-router-dom';
+
+import { styled } from 'styled-components';
+
+import { setToken } from '../storage';
+import { login } from '../apis';
+
+interface FormInputs {
+  username: string;
+  password: string;
+}
+
+const Login: React.FC = () => {
+  const [inputs, setInputs] = useState<FormInputs>({
+    username: '',
+    password: '',
+  });
+
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    try {
+      if (!inputs.username || !inputs.password) {
+        console.log('enter all values in form');
+        return;
+      }
+
+      const res = await login({
+        username: inputs.username,
+        password: inputs.password,
+      });
+
+      console.log(res.token);
+
+      setToken(res.token);
+      navigate('/');
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return (
+    <HomeContainer>
+      <Container>
+        <Card>
+          <Title>
+            Login
+            <img
+              width="30"
+              height="30"
+              src="https://img.icons8.com/ios-filled/50/FFFFFF/chat-message--v1.png"
+              alt="chat-message--v1"
+            />
+            <HighlightedText> ChitChat</HighlightedText>
+          </Title>
+          <Form onSubmit={handleSubmit}>
+            <div>
+              <Input
+                type="text"
+                placeholder="Enter username"
+                value={inputs.username}
+                onChange={(e) =>
+                  setInputs({ ...inputs, username: e.target.value })
+                }
+              />
+            </div>
+
+            <div>
+              <Input
+                type="password"
+                placeholder="Enter Password"
+                value={inputs.password}
+                onChange={(e) =>
+                  setInputs({ ...inputs, password: e.target.value })
+                }
+              />
+            </div>
+
+            <StyledLink to="/signup">{"Don't"} have an account?</StyledLink>
+
+            <div>
+              <FormButton>Login</FormButton>
+            </div>
+          </Form>
+        </Card>
+      </Container>
+    </HomeContainer>
+  );
+};
+
+export default Login;
 
 const HomeContainer = styled.div`
   display: flex;
@@ -114,95 +203,3 @@ const FormButton = styled.button`
     cursor: not-allowed;
   }
 `;
-
-interface FormInputs {
-  username: string;
-  password: string;
-}
-
-const Login: React.FC = () => {
-  const [inputs, setInputs] = useState<FormInputs>({
-    username: '',
-    password: '',
-  });
-
-  const { setAuthUser } = useAuthContext();
-
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    try {
-      // console.log(inputs);
-
-      if (!inputs.username || !inputs.password) {
-        console.log('enter all values in form');
-        return;
-      }
-
-      const res = await fetch(`${process.env.REACT_APP_API}/api/users/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username: inputs.username,
-          password: inputs.password,
-        }),
-      });
-
-      const data = await res.json();
-      localStorage.setItem('chat-user', JSON.stringify(data));
-
-      setAuthUser(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  return (
-    <HomeContainer>
-      <Container>
-        <Card>
-          <Title>
-            Login
-            <img
-              width="30"
-              height="30"
-              src="https://img.icons8.com/ios-filled/50/FFFFFF/chat-message--v1.png"
-              alt="chat-message--v1"
-            />
-            <HighlightedText> ChitChat</HighlightedText>
-          </Title>
-          <Form onSubmit={handleSubmit}>
-            <div>
-              <Input
-                type="text"
-                placeholder="Enter username"
-                value={inputs.username}
-                onChange={(e) =>
-                  setInputs({ ...inputs, username: e.target.value })
-                }
-              />
-            </div>
-
-            <div>
-              <Input
-                type="password"
-                placeholder="Enter Password"
-                value={inputs.password}
-                onChange={(e) =>
-                  setInputs({ ...inputs, password: e.target.value })
-                }
-              />
-            </div>
-
-            <StyledLink to="/signup">{"Don't"} have an account?</StyledLink>
-
-            <div>
-              <FormButton>Login</FormButton>
-            </div>
-          </Form>
-        </Card>
-      </Container>
-    </HomeContainer>
-  );
-};
-
-export default Login;

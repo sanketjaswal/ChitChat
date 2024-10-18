@@ -3,6 +3,11 @@ import Dashboard from '../components/Dashboard';
 
 // import { styled } from 'styled-components';
 
-export const Home: React.FC = () => {
-  return <Dashboard />;
+interface HomeProps {
+  connected: boolean | undefined;
+}
+
+export const Home: React.FC<HomeProps> = ({ connected }) => {
+  // console.log('connected', connected);
+  return <Dashboard connected={connected} />;
 };

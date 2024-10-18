@@ -1,10 +1,27 @@
 // src/components/Dashboard.tsx
 import * as React from 'react';
 import { styled } from 'styled-components';
-// import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 import { ChatArea } from './ChatArea';
 import { Navbar } from './Navbar';
+
+interface DashboardProps {
+  connected: boolean | undefined;
+}
+
+const Dashboard: React.FC<DashboardProps> = ({ connected }) => {
+  return (
+    <DashboardWrapper>
+      <Navbar connected={connected} />
+      <MainContent>
+        <Sidebar />
+        <ChatArea />
+      </MainContent>
+    </DashboardWrapper>
+  );
+};
+
+export default Dashboard;
 
 const DashboardWrapper = styled.div`
   display: flex;
@@ -18,18 +35,3 @@ const MainContent = styled.div`
   border-radius: 30px;
   overflow: hidden;
 `;
-
-const Dashboard: React.FC = () => {
-  return (
-    <DashboardWrapper>
-      {/* <Header /> */}
-      <Navbar />
-      <MainContent>
-        <Sidebar />
-        <ChatArea />
-      </MainContent>
-    </DashboardWrapper>
-  );
-};
-
-export default Dashboard;

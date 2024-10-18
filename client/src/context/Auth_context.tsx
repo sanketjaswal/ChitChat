@@ -2,7 +2,7 @@ import * as React from 'react';
 import { createContext, useContext, useState, ReactNode, FC } from 'react';
 
 interface AuthUser {
-  id: string;
+  id: number;
   name: string;
   username: string;
   email: string;
@@ -38,7 +38,7 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({
   children,
 }) => {
   interface TokenUser {
-    id: string;
+    id: number;
     name: string;
     username: string;
     email: string;
@@ -51,23 +51,25 @@ export const AuthContextProvider: FC<AuthContextProviderProps> = ({
     exp: number;
   }
 
-  let tokenPayload: TokenPayload | null = null;
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
 
-  const token = JSON.parse(localStorage.getItem('chat-user') || 'null');
+  // Extract and decode token
+  React.useEffect(() => {
+    const token = JSON.parse(localStorage.getItem('chat-user') || 'null');
 
-  if (token) {
-    try {
-      const base64 = token?.split('.')[1];
-      tokenPayload = JSON.parse(atob(base64));
-      console.log('tokenPayload', tokenPayload);
-    } catch (error) {
-      console.error('Error decoding token', error);
+    if (token) {
+      try {
+        const base64Payload = token.split('.')[1];
+        const decodedPayload = atob(base64Payload);
+        const tokenPayload: TokenPayload = JSON.parse(decodedPayload);
+        // console.log('Decoded Token Payload:', tokenPayload);
+
+        setAuthUser(tokenPayload.user);
+      } catch (error) {
+        console.error('Error decoding token', error);
+      }
     }
-  }
-
-  const [authUser, setAuthUser] = useState<AuthUser | null>(
-    tokenPayload?.user || null,
-  );
+  }, []);
 
   return (
     <AuthContext.Provider value={{ authUser, setAuthUser }}>

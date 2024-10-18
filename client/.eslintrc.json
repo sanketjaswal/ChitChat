@@ -33,7 +33,7 @@
     "no-shadow": "off",
     "@typescript-eslint/no-shadow": ["error"],
     "@typescript-eslint/explicit-function-return-type": [
-      "error",
+      "off",
       { "allowExpressions": true }
     ],
     "max-len": [
@@ -61,7 +61,8 @@
   "settings": {
     "import/resolver": {
       "typescript": {
-        "project": "tsconfig.json"
+        "project": "tsconfig.json",
+        "alwaysTryTypes": true
       },
       "node": {
         "extensions": [".ts", ".tsx"]

@@ -52,7 +52,17 @@ const ConversationText = styled.p`
   flex: 1;
 `;
 
-export const Conversation: React.FC = () => {
+interface ConverastionProps {
+  image: string;
+  name: string;
+  gender: string;
+}
+
+export const Conversation: React.FC<ConverastionProps> = ({
+  name,
+  image,
+  gender,
+}) => {
   return (
     <ConversationContainer
     // isSelected={isSelected}
@@ -61,16 +71,13 @@ export const Conversation: React.FC = () => {
       <Avatar>
         <div className={`avatar `}>
           <div>
-            <AvatarImage
-              src={'https://avatar.iran.liara.run/public/boy?username=boy'}
-              alt="user avatar"
-            />
+            <AvatarImage src={image} alt="user avatar" />
           </div>
         </div>
       </Avatar>
       <ConversationHeader>
-        <ConversationName>{/* {conversation.fullname} */}Name</ConversationName>
-        <ConversationText>helo</ConversationText>
+        <ConversationName>{name}</ConversationName>
+        <ConversationText>I am {gender}</ConversationText>
       </ConversationHeader>
     </ConversationContainer>
   );

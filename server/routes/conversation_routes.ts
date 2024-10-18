@@ -1,7 +1,8 @@
 import express from 'express';
-import { addConversation } from '../controller/conversation_controller';
-// import { createConversation } from '../models/conversation_model';
+import { addConversation, getConversationIdByUserIds } from '../controller/conversation_controller';
 
 export const conversationRouter = express.Router();
 
 conversationRouter.post('/conversation', addConversation);
+
+conversationRouter.get('/getConversationId/:ids', getConversationIdByUserIds);
