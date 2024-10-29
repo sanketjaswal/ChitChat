@@ -2,45 +2,43 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { styled } from 'styled-components';
+import { keyframes, styled } from 'styled-components';
 
 import { setToken } from '../storage';
 import { login } from '../apis';
+import { useFormik } from 'formik';
+import { loginSchema } from '../models';
+import { useAuthContext } from '../context/Auth_context';
+import { decodeJWTToken } from '../utils/decodeToken';
 
-interface FormInputs {
+interface AuthUser {
+  id: number;
+  name: string;
   username: string;
-  password: string;
+  email: string;
+  gender: string;
 }
 
 const Login: React.FC = () => {
-  const [inputs, setInputs] = useState<FormInputs>({
-    username: '',
-    password: '',
-  });
+  const { setAuthUser } = useAuthContext();
 
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    try {
-      if (!inputs.username || !inputs.password) {
-        console.log('enter all values in form');
-        return;
+  const formik = useFormik({
+    initialValues: {
+      username: '',
+      password: '',
+    },
+    validationSchema: loginSchema,
+    onSubmit: async (values) => {
+      try {
+        const res = await login(values); // Call your API
+        setToken(res.token);
+        const tokenUser = decodeJWTToken(res.token) as AuthUser;
+        setAuthUser(tokenUser);
+      } catch (error) {
+        console.log(error);
       }
-
-      const res = await login({
-        username: inputs.username,
-        password: inputs.password,
-      });
-
-      console.log(res.token);
-
-      setToken(res.token);
-      navigate('/');
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    },
+  });
 
   return (
     <HomeContainer>
@@ -56,27 +54,39 @@ const Login: React.FC = () => {
             />
             <HighlightedText> ChitChat</HighlightedText>
           </Title>
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={formik.handleSubmit}>
             <div>
               <Input
                 type="text"
-                placeholder="Enter username"
-                value={inputs.username}
-                onChange={(e) =>
-                  setInputs({ ...inputs, username: e.target.value })
+                placeholder="Username"
+                name="username"
+                value={formik.values.username}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isError={
+                  !!(formik.touched.username && !!formik.errors.username)
                 }
               />
+              {formik.touched.username && formik.errors.username && (
+                <Msg>{formik.errors.username}</Msg>
+              )}
             </div>
 
             <div>
               <Input
                 type="password"
                 placeholder="Enter Password"
-                value={inputs.password}
-                onChange={(e) =>
-                  setInputs({ ...inputs, password: e.target.value })
+                name="password"
+                value={formik.values.password}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isError={
+                  !!(formik.touched.password && !!formik.errors.password)
                 }
               />
+              {formik.touched.password && formik.errors.password && (
+                <Msg>{formik.errors.password}</Msg>
+              )}
             </div>
 
             <StyledLink to="/signup">{"Don't"} have an account?</StyledLink>
@@ -93,6 +103,17 @@ const Login: React.FC = () => {
 
 export default Login;
 
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
 const HomeContainer = styled.div`
   display: flex;
   height: 100vh;
@@ -106,6 +127,12 @@ const HomeContainer = styled.div`
   @media (min-width: 768px) {
     /* height: 550px; */
   }
+`;
+
+const Msg = styled.div`
+  color: red;
+  margin-top: 3px;
+  font-size: 15px;
 `;
 
 const Container = styled.div`
@@ -127,6 +154,8 @@ const Card = styled.div`
   background-color: #202329;
   backdrop-filter: blur(10px);
   transition: 0.6s;
+  opacity: 0;
+  animation: ${fadeIn} 0.5s ease-in-out 0.5s forwards;
 
   &:hover {
     box-shadow: 0 0px 10px rgba(255, 255, 255, 0.545);
@@ -157,13 +186,17 @@ const Form = styled.form`
   gap: 20px;
 `;
 
-const Input = styled.input`
+const Input = styled.input<{ isError: boolean }>`
   width: 90%;
   height: 2.5rem;
-  border: 1px solid #d1d5db;
+  border: 2px solid ${({ isError }) => (isError ? 'red' : '#d1d5db')};
+  /* border: 1px solid #d1d5db; */
   border-radius: 0.375rem;
   padding: 0 0.5rem;
   outline: none;
+  &:focus {
+    border-color: ${({ isError }) => (isError ? 'red' : '#3b82f6')};
+  }
 `;
 
 const StyledLink = styled(Link)`

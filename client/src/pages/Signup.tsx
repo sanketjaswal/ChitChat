@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-import { styled } from 'styled-components';
+import { keyframes, styled } from 'styled-components';
 import { useFormik } from 'formik';
 
 import GenderCheckbox from './Gendercheckbox';
@@ -17,62 +17,60 @@ interface FormInputs extends User {
 const Signup: React.FC = () => {
   const navigate = useNavigate();
 
-  const [inputs, setInputs] = useState<FormInputs>({
-    name: '',
-    username: '',
-    password: '',
-    confirmPassword: '',
-    email: '',
-    gender: '',
-  });
+  // const [inputs, setInputs] = useState<FormInputs>({
+  //   name: '',
+  //   username: '',
+  //   password: '',
+  //   confirmPassword: '',
+  //   email: '',
+  //   gender: '',
+  // });
 
-  const handleCheckBoxChange = (gender: string): void => {
-    setInputs({ ...inputs, gender });
-  };
+  // const handleCheckBoxChange = (gender: string): void => {
+  //   setInputs({ ...inputs, gender });
+  // };
 
-  const settingInput = (data: Partial<FormInputs>) => {
-    setInputs({ ...inputs, ...data });
-  };
+  // const settingInput = (data: Partial<FormInputs>) => {
+  //   setInputs({ ...inputs, ...data });
+  // };
 
-  // form submit
-  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
-    e.preventDefault();
-    try {
-      console.log(inputs);
+  // // form submit
+  // const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+  //   e.preventDefault();
+  //   try {
+  //     console.log(inputs);
 
-      if (
-        !inputs.name ||
-        !inputs.username ||
-        !inputs.password ||
-        !inputs.confirmPassword ||
-        !inputs.email ||
-        !inputs.gender
-      ) {
-        console.log('enter all values in form');
-        return;
-      }
+  //     if (
+  //       !inputs.name ||
+  //       !inputs.username ||
+  //       !inputs.password ||
+  //       !inputs.confirmPassword ||
+  //       !inputs.email ||
+  //       !inputs.gender
+  //     ) {
+  //       console.log('enter all values in form');
+  //       return;
+  //     }
 
-      // if(Object.values(inputs))
+  //     if (inputs.confirmPassword !== inputs.password) {
+  //       return alert('passwords dont match');
+  //     }
 
-      if (inputs.confirmPassword !== inputs.password) {
-        return alert('passwords dont match');
-      }
+  //     const res = await register({
+  //       name: inputs.name,
+  //       username: inputs.username,
+  //       password: inputs.password,
+  //       gender: inputs.gender,
+  //       email: inputs.email,
+  //     });
 
-      const res = await register({
-        name: inputs.name,
-        username: inputs.username,
-        password: inputs.password,
-        gender: inputs.gender,
-        email: inputs.email,
-      });
-
-      setToken(res.token);
-      navigate('/');
-      console.log(res);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  //     setToken(res.token);
+  //     navigate('/');
+  //     console.log(res);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const formik = useFormik({
     initialValues: {
@@ -228,6 +226,17 @@ const Signup: React.FC = () => {
 
 export default Signup;
 
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
 const HomeContainer = styled.div`
   display: flex;
   height: 100vh;
@@ -268,6 +277,8 @@ const Card = styled.div`
   background-color: #202329;
   backdrop-filter: blur(10px);
   transition: 0.6s;
+  opacity: 0;
+  animation: ${fadeIn} 0.5s ease-in-out 0.5s forwards;
 
   &:hover {
     box-shadow: 0 0px 10px rgba(255, 255, 255, 0.545);

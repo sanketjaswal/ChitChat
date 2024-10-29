@@ -1,91 +1,88 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
+
 import { styled } from 'styled-components';
-import MessageInput from './message/MessageInput';
+
 import { socket } from '../socket';
+import { createNewMessage, fetchAllMessages } from '../apis';
+import { useRoomContext } from '../context/Room_context';
+import { useAuthContext } from '../context/Auth_context';
+import MessageInput from './message/MessageInput';
 import NoChatMessage from './message/NochatPage';
 
-// component starts here
 export const ChatArea: React.FC = () => {
-  // interface Message {
-  //   id: number;
-  //   text: string;
-  //   sender: 'me' | 'other';
-  // }
-  // const [messages, setMessages] = useState<Message[]>([
-  //   { id: 1, text: 'Hi Sanket!', sender: 'other' },
-  //   { id: 2, text: 'Hi! How are you?', sender: 'me' },
-  // ]);
+  interface Message {
+    id: number | undefined;
+    content: string | undefined;
+    sender_id: number | undefined;
+    conversation_id: number | undefined;
+  }
 
-  // const [messageText, setMessageText] = useState('');
-
-  // const handleSendMessage = (): void => {
-  //   if (messageText.trim()) {
-  //     const newMessage: Message = {
-  //       id: messages.length + 1,
-  //       text: messageText,
-  //       sender: 'me',
-  //     };
-  //     setMessages([...messages, newMessage]);
-  //     setMessageText('');
-  //     sendMessage();
-  //   }
-  // };
-
-  const [chatSelected, setChatSelected] = useState<boolean>();
-
-  const [room, setRoom] = useState<string>('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const { authUser } = useAuthContext();
+  const { room } = useRoomContext();
   const [message, setMessage] = useState<string>('');
-  const [messageReceived, setMessageReceived] = useState<string>('');
 
-  const joinRoom = (): void => {
-    if (room !== '') {
-      socket.emit('join_room', room);
+  const sendMessage = async () => {
+    if (!message.trim()) return;
+
+    const newMessage = await createNewMessage({
+      senderId: authUser?.id,
+      conversationId: room,
+      content: message,
+    });
+
+    if (newMessage?.data) {
+      setMessages((prevMessages) => [...prevMessages, newMessage.data]);
+
+      socket.emit('send_message', { message: newMessage.data, room });
+      setMessage('');
     }
   };
 
-  const sendMessage = (): void => {
-    setMessage('');
-    socket.emit('send_message', { message, room });
+  const getMessages = async () => {
+    const data = await fetchAllMessages(room);
+    setMessages(data ?? []);
   };
 
+  // Listen for incoming messages
   useEffect(() => {
     socket.on('receive_message', (data) => {
-      setMessageReceived(data.message);
+      setMessages((prevMessages) => {
+        const uniqueMessages = [...prevMessages, data.message].filter(
+          (v, i, a) => a.findIndex((t) => t.id === v.id) === i,
+        );
+        return uniqueMessages;
+      });
     });
+
+    return () => {
+      socket.off('receive_message');
+    };
   }, []);
+
+  // Load messages when room changes
+  useEffect(() => {
+    getMessages();
+  }, [room]);
 
   return (
     <ChatAreaWrapper>
-      {/* <NoChatMessage /> */}
-      <label>Room</label>
-      <input
-        type="text"
-        value={room}
-        onChange={(e) => {
-          setRoom(e.target.value);
-        }}
-      ></input>
-      <button onClick={joinRoom}>set room</button>
       <div>
         <LabelText>To:</LabelText> <Fullname>Selected user</Fullname>
       </div>
       <MessagesContainer>
-        {/* {messages.map((mess) => (
-          <MessageBubble key={mess.id} sender={mess.sender}>
-            {mess.text}
+        {messages.map((mess) => (
+          <MessageBubble
+            key={mess.id}
+            authUser={authUser?.id}
+            sender={mess.sender_id}
+          >
+            {mess.content}
           </MessageBubble>
-        ))} */}
-        <MessageBubble key={''} sender={'other'}>
-          {messageReceived}
-        </MessageBubble>
+        ))}
       </MessagesContainer>
       <InputContainer>
-        {/* <MessageInput
-          handleSendMessage={handleSendMessage}
-          messageText={messageText}
-          setMessageText={setMessageText}
-        /> */}
         <MessageInput
           handleSendMessage={sendMessage}
           messageText={message}
@@ -123,18 +120,40 @@ const MessagesContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 8px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #cd0000; /* color of the scrollbar track */
+    border-radius: 40px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #1f04b9; /* color of the scrollbar handle */
+    border-radius: 10px;
+  }
+
+  /* Handle on hover */
+  &::-webkit-scrollbar-thumb:hover {
+    background: #00ea13; /* darker color on hover */
+  }
 `;
 
 interface MessageBubbleProps {
-  sender: 'me' | 'other';
+  sender: number | undefined;
+  authUser: number | undefined;
 }
 const MessageBubble = styled.div<MessageBubbleProps>`
   max-width: 70%;
   padding: 10px 15px;
   border-radius: 20px;
-  background-color: ${({ sender }) => (sender === 'me' ? '#a1c4fc' : '#FFF')};
-  align-self: ${({ sender }) => (sender === 'me' ? 'flex-end' : 'flex-start')};
-  color: ${({ sender }) => (sender === 'me' ? '#000' : '#333')};
+  background-color: ${({ sender, authUser }) =>
+    sender === authUser ? '#a1c4fc' : '#FFF'};
+  align-self: ${({ sender, authUser }) =>
+    sender === authUser ? 'flex-end' : 'flex-start'};
+  color: ${({ sender, authUser }) => (sender === authUser ? '#000' : '#333')};
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
 `;
 

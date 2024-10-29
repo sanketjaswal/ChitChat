@@ -5,14 +5,20 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthContextProvider } from './context/Auth_context';
+import { RoomContextProvider } from './context/Room_context';
+// import { SelectedChatContextProvider } from './context/Selected_chat_context';
 
 const root = createRoot(document.getElementById('root') as HTMLElement);
 root.render(
   <React.StrictMode>
     <AuthContextProvider>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <RoomContextProvider>
+        {/* <SelectedChatContextProvider> */}
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+        {/* </SelectedChatContextProvider> */}
+      </RoomContextProvider>
     </AuthContextProvider>
   </React.StrictMode>,
 );

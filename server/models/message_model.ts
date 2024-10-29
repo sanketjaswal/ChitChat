@@ -25,6 +25,12 @@ export const createMessage = async () => {
   return query;
 };
 
+export const getMessagesByConvoIds = () => {
+  const query = 'SELECT * FROM messages WHERE conversation_id = $1';
+
+  return query;
+};
+
 export const deleteMessage = async () => {
   const query = `
         DELETE FROM messages

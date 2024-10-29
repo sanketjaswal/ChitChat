@@ -6,7 +6,7 @@ import { User } from '../../models';
 import { findUserByUsername } from '../../apis';
 
 interface NewUser extends User {
-  id?: number;
+  id: number;
   profilepic: string;
 }
 interface SearchBarProps {
@@ -29,8 +29,19 @@ const SearchBar: React.FC<SearchBarProps> = ({ selectOrAddConversation }) => {
     try {
       const res = await findUserByUsername(search);
       // console.log(res);
+      const token: string | null = localStorage.getItem('chat-user');
+
+      const base64 = token?.split('.')[1];
+      if (base64) {
+        const tokenPayload = JSON.parse(atob(base64).toString());
+        tokenPayload.user.username;
+        if (tokenPayload.user.username == res.username) {
+          console.log('same user only : ', res);
+        } else {
+          setFoundUser(res);
+        }
+      }
       setSearch('');
-      setFoundUser(res);
     } catch (error) {
       console.error(error);
     }

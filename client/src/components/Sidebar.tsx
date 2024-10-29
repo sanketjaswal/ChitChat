@@ -1,49 +1,44 @@
 // src/components/Sidebar.tsx
 import * as React from 'react';
-import { useEffect, useState } from 'react';
-
-import { styled } from 'styled-components';
+import styled from 'styled-components';
 
 import SearchBar from './sidebar/SearchBar';
 import { useAuthContext } from '../context/Auth_context';
-import { Conversation } from './sidebar/Conversation';
+
 import {
-  // createNewConversationwithUsername,
+  createNewConversation,
+  createNewParticipants,
   getConversation,
   getParticipants,
 } from '../apis';
 import { User } from '../models';
+import { Conversation } from './sidebar/Conversation';
 
 interface NewUser extends User {
-  id?: number;
+  id: number;
   profilepic: string;
 }
 
 export const Sidebar: React.FC = () => {
-  const [users, setUsers] = useState<NewUser[]>([]);
-  const [userSearched, setUserSearched] = useState<NewUser | undefined>(
+  const [users, setUsers] = React.useState<NewUser[]>([]);
+  const [userSearched, setUserSearched] = React.useState<NewUser | undefined>(
     undefined,
   );
-  const [conversationId, setConversatonId] = useState<number>();
-
   const { authUser } = useAuthContext();
 
-  // Fetch users friends
+  // Fetch users' friends
   const fetchUsers = async (): Promise<void> => {
     try {
-      // Api call
-      const res = await getParticipants(authUser?.id);
-
-      // console.log(res);
-      setTimeout(() => {
-        return setUsers(res);
-      }, 1000);
+      if (authUser?.id) {
+        const res = await getParticipants(authUser.id);
+        setUsers(res);
+      }
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Create or select converastion
+  // Create or select conversation
   const selectOrAddConversation = async (
     foundUser: NewUser | null,
   ): Promise<void> => {
@@ -51,69 +46,54 @@ export const Sidebar: React.FC = () => {
       if (foundUser) {
         setUserSearched(foundUser);
       } else {
-        console.log('user not found', foundUser);
+        console.log('User not found:', foundUser);
+        return;
       }
 
-      let found = false;
-      for (const item of users) {
-        if (item.id === foundUser?.id) {
-          found = true;
-        }
-      }
-      //Found Old Conversation
-      if (found) {
-        console.log('user already Exists, find conversation');
+      const userExists = users.some((item) => item.id === foundUser.id);
 
-        // get Conversation API
+      if (userExists) {
+        console.log('User already exists, finding conversation');
+
         const res = await getConversation({
           userOne: authUser?.id,
-          userTwo: foundUser?.id,
+          userTwo: foundUser.id,
+        });
+      } else {
+        console.log('New user to be added, creating conversation');
+
+        const data = await createNewConversation({
+          userOne: authUser?.name,
+          userTwo: foundUser.name,
         });
 
-        // console.log(res.conversationid);
-        setConversatonId(res.conversationid);
-        //Create New Conversation
-      } else {
-        console.log('new User to be added, create conversation');
-        console.log(foundUser?.name, authUser?.name);
-        // const res = await fetch(
-        //   `${process.env.REACT_APP_NODE_URL}/api/conversations/conversation`,
-        //   {
-        //     method: 'POST',
-        //     body: JSON.stringify({
-        //       name: (foundUser?.name ?? 'found') + (authUser?.name ?? 'user'),
-        //     }),
-        //   },
-        // );
-
-        // const res = createNewConversationwithUsername();
-        // const data = await res.json();
-        // console.log(data?.id);
-        // addNewUser(data?.id);
+        console.log('Conversation ID:', data?.id);
+        addNewUser(data?.id, foundUser.id);
       }
     } catch (error) {
       console.error(error);
     }
   };
 
-  // Add new Participants
-  const addNewUser = async (newConvoId: number): Promise<void> => {
+  // Add new participant
+  const addNewUser = async (
+    newConvoId?: number,
+    foundUserId?: number,
+  ): Promise<void> => {
     try {
-      console.log(newConvoId);
       const res = await fetch(
-        `${process.env.REACT_APP_NODE_URL}/api/participants/addParticipant`,
+        `${process.env.REACT_APP_SERVER_URL}/api/participants/addParticipant`,
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             userId: authUser?.id,
-            secondUserId: userSearched?.id,
+            secondUserId: foundUserId,
             conversationId: newConvoId,
           }),
         },
       );
+
       const data = await res.json();
       console.log(data);
       fetchUsers();
@@ -122,23 +102,22 @@ export const Sidebar: React.FC = () => {
     }
   };
 
-  useEffect(() => {
+  React.useEffect(() => {
     fetchUsers();
   }, []);
 
   return (
     <SidebarWrapper>
       <SearchBar selectOrAddConversation={selectOrAddConversation} />
-      {users?.map((item) => {
-        return (
-          <Conversation
-            key={item.id}
-            image={item.profilepic}
-            name={item.name}
-            gender={item.gender}
-          />
-        );
-      })}
+      {users.map((item) => (
+        <Conversation
+          key={item.id}
+          id={item.id}
+          image={item.profilepic}
+          name={item.name}
+          gender={item.gender}
+        />
+      ))}
     </SidebarWrapper>
   );
 };

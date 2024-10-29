@@ -25,6 +25,11 @@ io.on('connection', (socket) => {
     socket.join(data);
   });
 
+  //leave room
+  socket.on('leave_room', (data) => {
+    socket.leave(data);
+  });
+
   // send message to room
   socket.on('send_message', (data) => {
     socket.to(data.room).emit('receive_message', data);

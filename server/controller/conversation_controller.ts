@@ -7,11 +7,11 @@ export const addConversation = async (req: Request<object, object, Conversation>
   try {
     const { name } = req.body;
     const values = [name, 'direct'];
-    console.log(values);
+    // console.log(values);
 
-    const query = createConversation();
+    const query: string = createConversation();
     const result = await client.query(query, values);
-    // console.log(result.rows[0]);
+    console.log(result.rows[0]);
     return res.status(200).json(result.rows[0]);
   } catch (err) {
     console.log(err);

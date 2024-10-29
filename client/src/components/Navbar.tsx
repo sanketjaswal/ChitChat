@@ -1,6 +1,6 @@
 // src/components/Sidebar.tsx
 import * as React from 'react';
-import { styled } from 'styled-components';
+import { keyframes, styled } from 'styled-components';
 import { useAuthContext } from '../context/Auth_context';
 
 interface NavbarProps {
@@ -22,6 +22,7 @@ export const Navbar: React.FC<NavbarProps> = ({ connected }) => {
 
   //Extract Image from token
   const [foundImage, setFoundImage] = React.useState<string | null>();
+  const [foundName, setFoundName] = React.useState<string | null>();
 
   React.useEffect(() => {
     const token: string | null = localStorage.getItem('chat-user');
@@ -31,6 +32,7 @@ export const Navbar: React.FC<NavbarProps> = ({ connected }) => {
       const tokenPayload = JSON.parse(atob(base64).toString());
       // console.log(tokenPayload.user.profilepic);
       setFoundImage(tokenPayload.user.profilepic);
+      setFoundName(tokenPayload.user.username);
     }
   }, []);
 
@@ -85,12 +87,23 @@ export const Navbar: React.FC<NavbarProps> = ({ connected }) => {
             alt="profile-pic"
           />
           <Dot connected={connected}></Dot>
-          Profile
+          {foundName}
         </Nav>
       </Room>
     </NavbarWrapper>
   );
 };
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+`;
 
 const Dot = styled.div<NavbarProps>`
   width: 8px;
@@ -111,6 +124,8 @@ const NavbarWrapper = styled.aside`
   display: flex;
   align-items: center;
   flex-direction: column;
+  opacity: 0;
+  animation: ${fadeIn} 0.5s ease-in-out 0.5s forwards;
 `;
 
 const Room = styled.div`
