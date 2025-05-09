@@ -1,5 +1,11 @@
 import express from 'express';
-import { listUsers, loginControl, registerControl, logoutControl } from '../controller/auth_controller';
+import {
+  listUsers,
+  loginControl,
+  registerControl,
+  logoutControl,
+  searchUserConrol,
+} from '../controller/auth_controller';
 
 export const userRouter = express.Router();
 
@@ -9,6 +15,6 @@ userRouter.post('/login', loginControl);
 
 userRouter.post('/logout', logoutControl);
 
-userRouter.get('/', listUsers);
+userRouter.get('/alluser', listUsers);
 
-// module.exports = userRouter;
+userRouter.get('/searchUser/:username', searchUserConrol);

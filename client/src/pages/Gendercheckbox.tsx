@@ -8,7 +8,6 @@ interface GenderCheckboxProps {
 
 const GenderContainer = styled.div`
   display: flex;
-  /* color: white; */
   width: 100%;
   display: flex;
   justify-content: center;

@@ -6,11 +6,34 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import { Home } from './pages/Home';
 import { useAuthContext } from './context/Auth_context';
+import { socket } from './socket';
 
 function App(): JSX.Element {
   const { authUser } = useAuthContext() || {};
 
-  // console.log(authUser);
+  const [isConnected, setIsConnected] = React.useState(socket.connected);
+
+  React.useEffect(() => {
+    function onConnect(): void {
+      setIsConnected(true);
+    }
+
+    function onDisconnect(): void {
+      setIsConnected(false);
+    }
+
+    socket.on('connect', onConnect);
+    socket.on('disconnect', onDisconnect);
+
+    return () => {
+      socket.off('connect', onConnect);
+      socket.off('disconnect', onDisconnect);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    console.log('isConnected:', isConnected);
+  }, [isConnected]);
 
   return (
     <div className="App">
@@ -18,7 +41,13 @@ function App(): JSX.Element {
       <Routes>
         <Route
           path="/*"
-          element={authUser ? <Home /> : <Navigate to="login" />}
+          element={
+            authUser ? (
+              <Home connected={isConnected} />
+            ) : (
+              <Navigate to="login" />
+            )
+          }
         />
         <Route
           path="login"

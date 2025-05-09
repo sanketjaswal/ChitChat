@@ -1,68 +1,65 @@
 import * as React from 'react';
-import { useState, FormEvent } from 'react';
+// import { useState, FormEvent } from 'react';
 import { styled } from 'styled-components';
+interface MessageInputProps {
+  handleSendMessage: () => void;
+  messageText: string;
+  setMessageText: (message: string) => void;
+}
 
-// Styled Components
-const Form = styled.form`
-  padding: 1rem;
-  margin: 1rem 0;
-`;
-
-const InputContainer = styled.div`
-  width: 100%;
-  position: relative;
-`;
-
-const Input = styled.input`
-  border: 1px solid #4b5563;
-  font-size: 0.875rem;
-  border-radius: 0.5rem;
-  width: 100%;
-  padding: 0.625rem;
-  background-color: #374151;
-  color: white;
-
-  &:focus {
-    outline: none;
-    border-color: #2563eb;
-  }
-`;
-
-const SubmitButton = styled.button`
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  padding-right: 0.75rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-`;
-
-const MessageInput: React.FC = () => {
-  const [message, setMessage] = useState<string>('');
-
-  const handleSubmit = async (e: FormEvent): Promise<void> => {
-    e.preventDefault();
-    if (!message) return;
-    setMessage('');
-  };
-
+const MessageInput: React.FC<MessageInputProps> = ({
+  handleSendMessage,
+  messageText,
+  setMessageText,
+}) => {
   return (
-    <Form onSubmit={handleSubmit}>
-      <InputContainer>
-        <Input
-          type="text"
-          placeholder="Send a message"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
+    <>
+      <Input
+        type="text"
+        placeholder="Send a message"
+        value={messageText}
+        onChange={(e) => setMessageText(e.target.value)}
+      />
+      <SendButton onClick={handleSendMessage}>
+        <img
+          width="20"
+          height="20"
+          src="https://img.icons8.com/ios/50/FFFFFF/paper-plane--v1.png"
+          alt="paper-plane--v1"
         />
-        <SubmitButton>Send</SubmitButton>
-      </InputContainer>
-    </Form>
+      </SendButton>
+    </>
   );
 };
 
 export default MessageInput;
+
+// Styled Components
+const Input = styled.input`
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  margin-right: 8px;
+`;
+
+const SendButton = styled.button`
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background-color: #3b82f6;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all.5s;
+  &:hover {
+    background-color: #336ecd;
+  }
+  &:active {
+    outline: none;
+    transition: all.1s;
+    transform: scale(0.9);
+  }
+`;

@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { createContext, useContext, useState, ReactNode, FC } from 'react';
+import { decodeJWTToken } from '../utils/decodeToken';
 
 interface AuthUser {
-  id: string;
+  id: number;
   name: string;
   username: string;
   email: string;
@@ -37,37 +38,21 @@ interface AuthContextProviderProps {
 export const AuthContextProvider: FC<AuthContextProviderProps> = ({
   children,
 }) => {
-  interface TokenUser {
-    id: string;
-    name: string;
-    username: string;
-    email: string;
-    gender: string;
-  }
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
 
-  interface TokenPayload {
-    user: TokenUser;
-    iat: number;
-    exp: number;
-  }
+  // Extract and decode token
+  React.useEffect(() => {
+    const token = JSON.parse(localStorage.getItem('chat-user') || 'null');
 
-  let tokenPayload: TokenPayload | null = null;
-
-  const token = JSON.parse(localStorage.getItem('chat-user') || 'null');
-
-  if (token) {
-    try {
-      const base64 = token?.split('.')[1];
-      tokenPayload = JSON.parse(atob(base64));
-      console.log('tokenPayload', tokenPayload);
-    } catch (error) {
-      console.error('Error decoding token', error);
+    if (token) {
+      try {
+        const tokenUser = decodeJWTToken(token) as AuthUser;
+        setAuthUser(tokenUser);
+      } catch (error) {
+        console.error('Error decoding token', error);
+      }
     }
-  }
-
-  const [authUser, setAuthUser] = useState<AuthUser | null>(
-    tokenPayload?.user || null,
-  );
+  }, []);
 
   return (
     <AuthContext.Provider value={{ authUser, setAuthUser }}>

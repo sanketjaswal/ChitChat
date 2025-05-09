@@ -1,46 +1,43 @@
 import express from 'express';
 import { Server } from 'socket.io';
 import http from 'http';
-import cors from 'cors';
+// import cors from 'cors';
+import Colors from 'colors';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const app = express();
-
-app.use(
-  cors({
-    origin: ['http://localhost:3000'],
-    methods: ['GET', 'POST'],
-  }),
-);
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: ['http://localhost:3000'],
+    origin: process.env.CLIENT_URL,
     methods: ['GET', 'POST'],
   },
 });
 
-// export const getReceiverSocketId = (receiverId) => {
-//   return userSocketMap[receiverId];
-// };
+io.on('connection', (socket) => {
+  console.log(Colors.green('a user connected'), socket.id);
 
-// const userSocketMap = {};
+  //join room
+  socket.on('join_room', (data) => {
+    socket.join(data);
+  });
 
-// io.on("connection", (socket) => {
-//   console.log("a user connected", socket.id);
+  //leave room
+  socket.on('leave_room', (data) => {
+    socket.leave(data);
+  });
 
-//   const userId = socket.handshake.query.userId;
-//   if (userId != "undefined") {
-//     userSocketMap[userId] = socket.id;
-//   }
+  // send message to room
+  socket.on('send_message', (data) => {
+    socket.to(data.room).emit('receive_message', data);
+  });
 
-//   io.emit("getOnlineUsers", Object.keys(userSocketMap));
-
-//   socket.on("disconnect", () => {
-//     console.log("USer discconnected", socket.id);
-//     delete userSocketMap[userId];
-//     io.emit("getOnlineUsers", Object.keys(userSocketMap));
-//   });
-// });
+  socket.on('disconnect', () => {
+    console.log(Colors.red('User disconnected'), socket.id);
+  });
+});
 
 export { app, io, server };
